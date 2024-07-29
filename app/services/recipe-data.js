@@ -3,6 +3,7 @@ import { inject as service } from '@ember/service';
 
 export default class RecipeDataService extends Service {
   @service store;
+
   async loadRecipes() {
     let response = await fetch('/api/recipes.json');
     let data = await response.json();
@@ -43,5 +44,25 @@ export default class RecipeDataService extends Service {
         return v.toString(16);
       },
     );
+  }
+  getFavorites() {
+    return JSON.parse(localStorage.getItem('favorites')) || [];
+  }
+  isFavorite(recipeId) {
+    let favorites = this.getFavorites();
+    return favorites.includes(recipeId);
+  }
+
+  toggleFavorite(recipeId, isFavorite) {
+    let favorites = this.getFavorites();
+    if (isFavorite) {
+      if (!favorites.includes(recipeId)) {
+        favorites.push(recipeId);
+      }
+    } else {
+      favorites = favorites.filter((id) => id != recipeId);
+    }
+
+    localStorage.setItem('favorites', JSON.stringify(favorites));
   }
 }

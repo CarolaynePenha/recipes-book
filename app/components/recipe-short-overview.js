@@ -28,6 +28,11 @@ export default class RecipeShortOverviewComponent extends Component {
   }
 
   @action
+  deleteRecipe() {
+    this.recipeData.deleteRecipe(this.args.id);
+  }
+
+  @action
   toggleFavorite(event) {
     event.stopPropagation();
     this.isFavorite = !this.isFavorite;

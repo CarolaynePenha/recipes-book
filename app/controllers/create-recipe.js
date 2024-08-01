@@ -44,6 +44,10 @@ export default class CreateRecipeController extends Controller {
       instructions: this.instructions,
     };
     this.recipeData.saveRecipe(newRecipe);
+    this.title = '';
+    this.description = '';
+    this.ingredients = '';
+    this.instructions = '';
 
     this.router.transitionTo('recipes');
   }

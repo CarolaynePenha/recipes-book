@@ -7,7 +7,7 @@ export default class RecipeDataService extends Service {
   async loadRecipes() {
     let response = await fetch('/api/recipes.json');
     let data = await response.json();
-    let storeRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+    let storeRecipes = this.getRecipesFromLocalStorage();
 
     const addRecipeToStore = (recipe) => {
       let existingRecipe = this.store.peekRecord('recipe', recipe.id);
@@ -29,10 +29,33 @@ export default class RecipeDataService extends Service {
   }
 
   async saveRecipe(recipe) {
-    let storeRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+    let storeRecipes = this.getRecipesFromLocalStorage();
     storeRecipes.push(recipe);
 
     localStorage.setItem('recipes', JSON.stringify(storeRecipes));
+  }
+
+  getRecipesFromLocalStorage() {
+    let storeRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+
+    return storeRecipes;
+  }
+
+  deleteRecipe(recipeId) {
+    let storeRecipes = this.getRecipesFromLocalStorage();
+    storeRecipes = storeRecipes.filter(
+      (storeRecipe) => storeRecipe.id !== recipeId,
+    );
+    localStorage.removeItem('recipes');
+    localStorage.setItem('recipes', JSON.stringify(storeRecipes));
+
+    let favorites = this.getFavorites();
+    favorites = favorites.filter((id) => id !== recipeId);
+    localStorage.removeItem('favorites');
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+
+    let existingRecipe = this.store.peekRecord('recipe', recipeId);
+    existingRecipe.destroyRecord();
   }
 
   generateGUID() {
@@ -45,9 +68,11 @@ export default class RecipeDataService extends Service {
       },
     );
   }
+
   getFavorites() {
     return JSON.parse(localStorage.getItem('favorites')) || [];
   }
+
   isFavorite(recipeId) {
     let favorites = this.getFavorites();
     return favorites.includes(recipeId);
